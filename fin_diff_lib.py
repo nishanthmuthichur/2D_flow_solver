@@ -87,22 +87,89 @@ def comp_CD8_deriv(Y):
         elif (idx == (N_pts - 1)): 
             
             dYdX[idx] = A[8, (m - 4)] * Y[idx - 4] + \
-                           A[8, (m - 3)] * Y[idx - 3] + \
-                           A[8, (m - 2)] * Y[idx - 2] + \
-                           A[8, (m - 1)] * Y[idx - 1] + \
-                           A[8,    m   ] * Y[idx    ]
+                        A[8, (m - 3)] * Y[idx - 3] + \
+                        A[8, (m - 2)] * Y[idx - 2] + \
+                        A[8, (m - 1)] * Y[idx - 1] + \
+                        A[8,    m   ] * Y[idx    ]
                           
         else:
             
-            dYdX[idx] =  A[4, (m - 4)] * Y[idx - 4] + \
-                         A[4, (m - 3)] * Y[idx - 3] + \
-                         A[4, (m - 2)] * Y[idx - 2] + \
-                         A[4, (m - 1)] * Y[idx - 1] + \
-                         A[4,    m   ] * Y[idx    ] + \
-                         A[4, (m + 1)] * Y[idx + 1] + \
-                         A[4, (m + 2)] * Y[idx + 2] + \
-                         A[4, (m + 3)] * Y[idx + 3] + \
-                         A[4, (m + 4)] * Y[idx + 4]            
+            dYdX[idx] = A[4, (m - 4)] * Y[idx - 4] + \
+                        A[4, (m - 3)] * Y[idx - 3] + \
+                        A[4, (m - 2)] * Y[idx - 2] + \
+                        A[4, (m - 1)] * Y[idx - 1] + \
+                        A[4,    m   ] * Y[idx    ] + \
+                        A[4, (m + 1)] * Y[idx + 1] + \
+                        A[4, (m + 2)] * Y[idx + 2] + \
+                        A[4, (m + 3)] * Y[idx + 3] + \
+                        A[4, (m + 4)] * Y[idx + 4]            
             
     return dYdX
 
+def comp_RK4_time_step(compute_fluxes, Flow_vec_0, \
+                                           dx, dy, \
+                                          delta_t):
+
+    Flow_vec_up = Flow_vec_0    
+    
+    #S1
+    Flow_vec_1 = Flow_vec_0     
+    #K1
+    Flow_vec_1 = compute_fluxes(dx, dy, \
+                            Flow_vec_1)
+    Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/6)        
+
+        
+    #S2    
+    Flow_vec_1.U_sol = Flow_vec_0.U_sol + ((delta_t * 0.5) * Flow_vec_1.F_sol)
+    #K2
+    Flow_vec_1 = compute_fluxes(dx, dy, \
+                            Flow_vec_1)    
+    Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/3)                
+        
+        
+    
+    #S3    
+    Flow_vec_1.U_sol = Flow_vec_0.U_sol + ((delta_t * 0.5) * Flow_vec_1.F_sol)    
+    #K3
+    Flow_vec_1 = compute_fluxes(dx, dy, \
+                            Flow_vec_1)        
+    Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/3)            
+        
+        
+        
+    #S4    
+    Flow_vec_1.U_sol = Flow_vec_0.U_sol + (delta_t * Flow_vec_1.F_sol)        
+    #K4
+    Flow_vec_1 = compute_fluxes(dx, dy, \
+                            Flow_vec_1)            
+    Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/6)            
+
+    return Flow_vec_up
+
+
+    
+
+    
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

@@ -1,6 +1,6 @@
 import numpy as np
 
-import incomp_NS_2D_lib as NS_2D
+import flow_solver_2D_lib as fs_2D
 
 #*****************************
 
@@ -20,7 +20,7 @@ def two_D_grid_gen(Nx, Ny, \
           xcoord[x_idx, y_idx] = x_min + dx * x_idx        
           ycoord[x_idx, y_idx] = y_min + dy * y_idx
 
-    print('Incomp_NS_2D: 2D uniform grid generated')
+    print('flow_solver_2D: 2D uniform grid generated')
     
     return xcoord, ycoord
 
@@ -54,17 +54,18 @@ def set_init_cond(xcoord, ycoord, \
           u_vel_init[x_idx, y_idx] = u_vel
           v_vel_init[x_idx, y_idx] = 0.0
         
+    Flow_vec = list()
     
-    U_sol_init = NS_2D.flow_sol(u_vel_init, \
-                                v_vel_init)
-    
-    print('Incomp_NS_2D: Initial conditions has been computed')        
+    Flow_vec.append(fs_2D.flow_blk(u_vel_init))
+    Flow_vec.append(fs_2D.flow_blk(v_vel_init))
+
+    print('usermod: Initial conditions has been computed')        
         
-    return U_sol_init    
+    return Flow_vec
 
 def set_boundary_cond(xcoord, ycoord, \
                                    D, \
-                               U_sol):
+                            Flow_vec):
 
     r0 = 0.5 * D
     
@@ -78,15 +79,16 @@ def set_boundary_cond(xcoord, ycoord, \
         
         if (y_co == 0): 
             
-            u_vel = 1    
+            u_vel_in = 1    
         
         else: 
             
-            u_vel = 0.5 * (1 - np.tanh(b * ((abs(y_co)/r0) - (r0/abs(y_co)))))
+            u_vel_in = 0.5 * (1 - np.tanh(b * ((abs(y_co)/r0) - (r0/abs(y_co)))))
             
-        U_sol.u_vel[0, y_idx] = u_vel
-        U_sol.v_vel[0, y_idx] = 0.0    
+        Flow_vec[0].U_sol[0, y_idx] = u_vel_in
+        Flow_vec[1].U_sol[0, y_idx] = 0.0            
+            
+        
+    print('usermod: Boundary conditions has been computed')            
     
-    print('Incomp_NS_2D: Boundary conditions has been computed')            
-    
-    return U_sol
+    return Flow_vec

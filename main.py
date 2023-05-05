@@ -13,11 +13,13 @@
 
 import numpy as np
 
+import flow_solver_2D_lib as fs_2D
+import flow_solver_2D_user_mod as um
+
+import conv_2D_sol as l_conv_2D
+
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-
-import incomp_NS_2D_lib as iNS_2D
-import incomp_NS_2D_user_mod as um
 
 #*****************************INPUT PARAMETERS*********************************
 
@@ -46,45 +48,42 @@ xcoord, ycoord = um.two_D_grid_gen(Nx, Ny, \
                              x_min, x_max, \
                              y_min, y_max)
 
-dt = iNS_2D.comp_time_step(xcoord, \
+dt = fs_2D.comp_time_step(xcoord, \
                           ycoord, \
                              CFL)
         
-U_sol = um.set_init_cond(xcoord, \
-                         ycoord, \
-                              D)
+Flow_vec = um.set_init_cond(xcoord, \
+                            ycoord, \
+                                 D)
 
+func = l_conv_2D.compute_fluxes    
+    
 for t_idx in range(0, N_tstep):
 
     time = dt * t_idx    
 
-    U_sol = um.set_boundary_cond(xcoord, ycoord, \
-                                              D, \
-                                          U_sol)
+    Flow_vec = um.set_boundary_cond(xcoord, ycoord, \
+                                                 D, \
+                                          Flow_vec)
 
-    U_sol = iNS_2D.compute_fluxes(dx, dy, \
-                                   U_sol)
-
-    #U_sol = iNS_2D.comp_RK4_time_step(U_sol)    
+    Flow_vec = fs_2D.comp_RK4_time_step(func, Flow_vec, dx, dy)    
 
     #iNS_2D.write_output_to_file(U_sol)
     
-u_vel = U_sol.u_vel
+#u_vel = U_sol.u_vel
 
 #*********************
 
-fig, ax = plt.subplots(1, 1)
-fig.set_dpi(300)
+#fig, ax = plt.subplots(1, 1)
+#fig.set_dpi(300)
 
-ax.pcolormesh(xcoord, ycoord, u_vel, cmap = 'jet')
-ax.axis('equal')
+#ax.pcolormesh(xcoord, ycoord, u_vel, cmap = 'jet')
+#ax.axis('equal')
 
 
-plt.show()
-
+#plt.show()
     
-    
-print('incomp_iNS_2D: Executed successfully')
+print('flow_solver_2D: Executed successfully')
     
     
 
