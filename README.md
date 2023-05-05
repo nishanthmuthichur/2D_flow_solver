@@ -1,29 +1,35 @@
+FLOW_SOLVER_2D PROJECT ARCHITECTURE
 
 
 
-
-
-flow_solver_2D_module
-    => read_grid_file
-    => comp_time_step
-    => Time loop for the RK4
-    => Write output data as hdf5 file
-    
-
-conv_2D_sol
-    => set_init_cond
-    => set_boundary_cond
-    => compute_fluxes
-
-    
-fin_diff_lib
-    => differentiation
-    => RK4
-    => Filtering
-    
-
-user_module    
-    => set_initial_conditions
-    => set_boundary_conditions
-    
-    
+           ===========================         
+           :                         :
+           : user_module             :  
+           :   => set_init_cond      : 
+           :   => set_boundary_cond  :     
+           :                         :  
+           :                         :
+           ===========================
+                        |
+                        |
+                        V 
+           ===========================          ==========================       
+           :                         :          :                        :
+           : Generic_2D_solver       :          :  fin_diff_lib          :
+           :   => set_init_cond      :<=========:    => CD8 diff         :
+           :   => set_boundary_cond  :          :    => RK4              :
+           :   => compute_fluxes     :          :    => CD10 filter      :
+           :                         :          :                        :
+           ===========================          ==========================
+                        |  
+                        |               
+                        V   
+           =======================================
+           :                                     :
+           : Flow_solver_2D_lib                  :  
+           :   => read_grid_file                 : 
+           :   => compute_time_step              : 
+           :   => Time loop for Rk4              :
+           :   => Write output data as HDF5 file : 
+           :                                     :
+           =======================================
