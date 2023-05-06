@@ -1,9 +1,11 @@
-# This function is used to compute the derivative 'dYdX' of 'Y' using 
-# an explicit 8th order central difference stencil
+from operator import add
 
 import numpy as np
 
-def comp_CD8_deriv(Y):
+# This function is used to compute the derivative 'dYdX' of 'Y' using 
+# an explicit 8th order central difference stencil
+
+def compute_CD8_deriv(Y):
 
     N_pts = len(Y);
     dYdX = np.zeros(N_pts);
@@ -106,9 +108,9 @@ def comp_CD8_deriv(Y):
             
     return dYdX
 
-def comp_RK4_time_step(compute_fluxes, Flow_vec_0, \
-                                           dx, dy, \
-                                          delta_t):
+def compute_RK4_time_step(compute_fluxes, Flow_vec_0, \
+                                              dx, dy, \
+                                             delta_t):
 
     Flow_vec_up = Flow_vec_0    
     
@@ -117,59 +119,57 @@ def comp_RK4_time_step(compute_fluxes, Flow_vec_0, \
     #K1
     Flow_vec_1 = compute_fluxes(dx, dy, \
                             Flow_vec_1)
-    Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/6)        
+    #RK_stage_1    
+    Flow_vec_up.U_sol = list( map( add, \
+                                   Flow_vec_up.U_sol, \
+                                   [var_idx * (delta_t / 6) for var_idx in Flow_vec_1.F_sol]   ) )    
+    #Flow_vec_up.U_sol = list( map( add, Flow_vec_up.U_sol, ((delta_t / 6) * Flow_vec_1.F_sol) ) )
+    #Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/6)        
 
         
     #S2    
-    Flow_vec_1.U_sol = Flow_vec_0.U_sol + ((delta_t * 0.5) * Flow_vec_1.F_sol)
+    Flow_vec_1.U_sol = list( map(add, Flow_vec_0.U_sol, [var_idx * (delta_t * 0.5) for var_idx in Flow_vec_1.F_sol] ) )
+    #Flow_vec_1.U_sol = Flow_vec_0.U_sol + ((delta_t * 0.5) * Flow_vec_1.F_sol)
     #K2
     Flow_vec_1 = compute_fluxes(dx, dy, \
                             Flow_vec_1)    
-    Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/3)                
-        
+    #RK_stage_2    
+    Flow_vec_up.U_sol = list( map( add, \
+                                   Flow_vec_up.U_sol, \
+                                   [var_idx * (delta_t / 3) for var_idx in Flow_vec_1.F_sol]   ) )        
+    #Flow_vec_up.U_sol = list( map( add, Flow_vec_up.U_sol, ((delta_t / 3) * Flow_vec_1.F_sol) ) )
+    #Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/3)                
         
     
     #S3    
-    Flow_vec_1.U_sol = Flow_vec_0.U_sol + ((delta_t * 0.5) * Flow_vec_1.F_sol)    
+    Flow_vec_1.U_sol = list( map(add, Flow_vec_0.U_sol, [var_idx * (delta_t * 0.5) for var_idx in Flow_vec_1.F_sol] ) )    
+    #Flow_vec_1.U_sol = Flow_vec_0.U_sol + ((delta_t * 0.5) * Flow_vec_1.F_sol)    
     #K3
     Flow_vec_1 = compute_fluxes(dx, dy, \
                             Flow_vec_1)        
-    Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/3)            
         
+    #RK_stage_3    
+    Flow_vec_up.U_sol = list( map( add, \
+                                   Flow_vec_up.U_sol, \
+                                   [var_idx * (delta_t / 3) for var_idx in Flow_vec_1.F_sol]   ) )        
+    #Flow_vec_up.U_sol = list( map( add, Flow_vec_up.U_sol, ((delta_t / 3) * Flow_vec_1.F_sol) ) )
+    #Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/3)            
         
         
     #S4    
-    Flow_vec_1.U_sol = Flow_vec_0.U_sol + (delta_t * Flow_vec_1.F_sol)        
+    Flow_vec_1.U_sol = list( map(add, Flow_vec_0.U_sol, [var_idx * (delta_t) for var_idx in Flow_vec_1.F_sol] ) )    
+    #Flow_vec_1.U_sol = Flow_vec_0.U_sol + (delta_t * Flow_vec_1.F_sol)        
     #K4
     Flow_vec_1 = compute_fluxes(dx, dy, \
                             Flow_vec_1)            
-    Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/6)            
+        
+    #RK_stage_4    
+    Flow_vec_up.U_sol = list( map( add, \
+                                   Flow_vec_up.U_sol, \
+                                   [var_idx * (delta_t / 6) for var_idx in Flow_vec_1.F_sol]   ) )        
+    #Flow_vec_up.U_sol = list( map( add, Flow_vec_up.U_sol, ((delta_t / 6) * Flow_vec_1.F_sol) ) )        
+    #Flow_vec_up.U_sol = Flow_vec_up.U_sol + delta_t * (Flow_vec_1.F_sol/6)            
 
     return Flow_vec_up
 
-
-    
-
-    
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     

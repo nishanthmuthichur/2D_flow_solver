@@ -1,6 +1,6 @@
 import numpy as np
 
-import cdiff_scheme_lib as cds
+import fin_diff_lib as fdl
 
 #*****************************
 
@@ -26,9 +26,9 @@ def compute_inviscid_fluxes(dx, dy, \
                           Flow_vec): 
     
     ax = 1
-    ay = 1
+    ay = 0
 
-    [Nx, Ny] = Flow_vec[U_VEL].U_sol.shape
+    [Nx, Ny] = Flow_vec.U_sol[U_VEL].shape
     
     dudx = np.zeros((Nx, Ny))
     dvdx = np.zeros((Nx, Ny))    
@@ -38,22 +38,22 @@ def compute_inviscid_fluxes(dx, dy, \
     
     for y_idx in range(0, Ny):
         
-        u = Flow_vec[U_VEL].U_sol[:, y_idx]
-        v = Flow_vec[V_VEL].U_sol[:, y_idx]        
-
-        dudx[:, y_idx] = -ax * cds.comp_CD8_deriv(u) / dx
-        dvdx[:, y_idx] = -ax * cds.comp_CD8_deriv(v) / dx    
+        u = Flow_vec.U_sol[U_VEL][:, y_idx]
+        v = Flow_vec.U_sol[V_VEL][:, y_idx]
+        
+        dudx[:, y_idx] = -ax * fdl.compute_CD8_deriv(u) / dx
+        dvdx[:, y_idx] = -ax * fdl.compute_CD8_deriv(v) / dx    
     
     for x_idx in range(0, Nx):
         
-        u = Flow_vec[U_VEL].U_sol[x_idx, :]
-        v = Flow_vec[V_VEL].U_sol[x_idx, :]        
+        u = Flow_vec.U_sol[U_VEL][x_idx, :]
+        v = Flow_vec.U_sol[V_VEL][x_idx, :]
         
-        dudy[x_idx, :] = -ay * cds.comp_CD8_deriv(u) / dy
-        dvdy[x_idx, :] = -ay * cds.comp_CD8_deriv(v) / dy            
+        dudy[x_idx, :] = -ay * fdl.compute_CD8_deriv(u) / dy
+        dvdy[x_idx, :] = -ay * fdl.compute_CD8_deriv(v) / dy            
     
-    Flow_vec[U_VEL].F = dudx + dudy
-    Flow_vec[V_VEL].F = dvdx + dvdy
+    Flow_vec.F_sol[U_VEL] = dudx + dudy
+    Flow_vec.F_sol[V_VEL] = dvdx + dvdy
     
     return Flow_vec
 

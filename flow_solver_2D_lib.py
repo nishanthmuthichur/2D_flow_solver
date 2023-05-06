@@ -8,12 +8,10 @@ INIT_DUM_VAL = -100000
 
 class flow_blk:
     
-    def __init__(self, U_sol_init):
+    def __init__(self):
 
-        (Nx, Ny) = U_sol_init.shape
-
-        self.U_sol = U_sol_init
-        self.F_sol = np.zeros((Nx, Ny))
+        self.U_sol = list()
+        self.F_sol = list()
     
         self.time_idx = 0
         self.time     = 0
@@ -54,12 +52,7 @@ def comp_time_step(xcoord, \
     
     return dt
     
-def comp_RK4_time_step(func, Flow_vec, dx, dy):
 
-    Flow_vec = func(dx, dy, \
-                  Flow_vec)   
-
-    return Flow_vec    
 
 
 
