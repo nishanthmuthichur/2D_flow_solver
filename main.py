@@ -20,47 +20,49 @@ import fin_diff_lib as fdl
 
 import linear_conv_2D_sol as lconv_2D
 
-
-import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
-
 #*****************************INPUT PARAMETERS*********************************
 
-Nx = 121
-Ny = 101
+wkdir_grid_read = 'C:\\Users\\Nishanth\\Desktop\\nish_work\\python_proj\\flow_solver_2D\\'
+ip_fname = 'ip_grid_2D_101_x_101.h5'
 
-x_min = 0
-x_max = 5
-    
-y_min = -1                              
-y_max =  1
-
-dx = (x_max - x_min)/(Nx - 1)
-dy = (y_max - y_min)/(Ny - 1)
+wkdir_write_data = 'C:\\Users\\Nishanth\\Desktop\\nish_work\\python_proj\\flow_solver_2D\\op_data\\'
+op_gen_fname = 'lconv_2D_results'
 
 D = 1
 U_MAX = 1
 
 CFL = 0.1/U_MAX
 
-N_tstep = 1000
+N_tstep = 100
 
+op_freq_idx = 10
+op_idx = 0
 #****************************START OF CODE*************************************
 
-xcoord, ycoord = um.two_D_grid_gen(Nx, Ny, \
-                             x_min, x_max, \
-                             y_min, y_max)
+# Read grid data from file
+xcoord, ycoord = fs_2D.read_grid_data(wkdir_grid_read, ip_fname)
 
+(Nx, Ny) = xcoord.shape
+
+x_max = xcoord.max()
+x_min = xcoord.min()
+
+y_max = ycoord.max()
+y_min = ycoord.min()
+
+dx = (x_max - x_min)/(Nx - 1)
+dy = (y_max - y_min)/(Ny - 1)
+
+# Compute time_step from CFL
 delta_t = fs_2D.comp_time_step(xcoord, \
                                ycoord, \
                                   CFL)
-        
+   
+# Set initial conditions from usermodule        
 Flow_vec = um.set_init_cond(xcoord, \
                             ycoord, \
                                  D)
 
-u_vel = np.zeros((Nx, Ny, int(N_tstep/10)))
-    
 compute_fluxes = lconv_2D.compute_fluxes    
     
 for time_idx in range(0, N_tstep):
@@ -70,6 +72,15 @@ for time_idx in range(0, N_tstep):
     Flow_vec.time_idx = time_idx
     Flow_vec.time     = time
 
+    if (np.mod(Flow_vec.time_idx, op_freq_idx) == 0):
+
+        fs_2D.write_data_to_hdf5_file(wkdir_write_data, op_gen_fname, \
+                                                              op_idx, \
+                                                            Flow_vec)
+    
+        op_idx = op_idx + 1
+
+
     Flow_vec = um.set_boundary_cond(xcoord, ycoord, \
                                                  D, \
                                           Flow_vec)
@@ -78,23 +89,7 @@ for time_idx in range(0, N_tstep):
                                                            dx, dy, \
                                                           delta_t)
 
-    #iNS_2D.write_output_to_file(U_sol)
-    
-    if ((time_idx % 10) == 0):
-    
-        u_vel[:, :, int(time_idx/10)] = Flow_vec.U_sol[0]
-
 #*********************
-
-fig, ax = plt.subplots(1, 1)
-fig.set_dpi(300)
-
-
-pp = ax.pcolormesh(xcoord, ycoord, u_vel[:, :, 99], cmap = 'jet', vmin = 0, vmax = 1)
-ax.axis('equal')
-fig.colorbar(pp)
-
-plt.show()
     
 print('flow_solver_2D: Executed successfully')
     
