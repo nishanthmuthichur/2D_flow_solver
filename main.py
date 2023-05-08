@@ -25,7 +25,7 @@ import linear_conv_2D_sol as lconv_2D
 wkdir_grid_read = 'C:\\Users\\Nishanth\\Desktop\\nish_work\\python_proj\\flow_solver_2D\\'
 ip_fname = 'ip_grid_2D_101_x_101.h5'
 
-wkdir_write_data = 'C:\\Users\\Nishanth\\Desktop\\nish_work\\python_proj\\flow_solver_2D\\op_data\\'
+wkdir_write_data = 'C:\\Users\\Nishanth\\Desktop\\nish_work\\python_proj\\flow_solver_2D\\op_data_filtered_sol\\'
 op_gen_fname = 'lconv_2D_results'
 
 D = 1
@@ -33,7 +33,7 @@ U_MAX = 1
 
 CFL = 0.1/U_MAX
 
-N_tstep = 100
+N_tstep = 1000
 
 op_freq_idx = 10
 op_idx = 0
@@ -88,6 +88,8 @@ for time_idx in range(0, N_tstep):
     Flow_vec = fdl.compute_RK4_time_step(compute_fluxes, Flow_vec, \
                                                            dx, dy, \
                                                           delta_t)
+
+    Flow_vec = fs_2D.filter_sol(Flow_vec)
 
 #*********************
     

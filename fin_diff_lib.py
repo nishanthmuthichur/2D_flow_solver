@@ -108,6 +108,81 @@ def compute_CD8_deriv(Y):
             
     return dYdX
 
+def compute_CD10_filter(U):
+    
+    N_pts = len(U);
+    fil_U = np.zeros(N_pts);
+  
+    m = 5;
+  
+    A = np.array([ \
+        [ 0,   0,   0,   0,    0,   1,   -5,  10, -10,  5, -1], \
+        [ 0,   0,   0,   0,   -5,  26,  -55,  60, -35, 10, -1], \
+        [ 0,   0,   0,  10,  -55, 126, -155, 110, -45, 10, -1], \
+        [ 0,   0, -10,  60, -155, 226, -205, 120, -45, 10, -1], \
+        [ 0,   5, -35, 110, -205, 251, -210, 120, -45, 10, -1], \
+        [-1,  10, -45, 120, -210, 252, -210, 120, -45, 10, -1], \
+        [-1,  10, -45, 120, -210, 251, -205, 110, -35,  5,  0], \
+        [-1,  10, -45, 120, -205, 226, -155,  60, -10,  0,  0], \
+        [-1,  10, -45, 110, -155, 126,  -55,  10,   0,  0,  0], \
+        [-1,  10, -35,  60,  -55,  26,   -5,   0,   0,  0,  0], \
+        [-1,   5, -10,  10,   -5,   1,    0,   0,   0,  0,  0]    
+    ])
+  
+    for idx in range(0, N_pts):
+        
+        if ( (idx >= 5) and (idx <= (N_pts - 6)) ):
+        
+            fil_U[idx] = U[idx] - (1 / 1024) * sum(A[5, (m - 5) : (m + 5)] * U[idx - 5 : idx + 5])
+        
+        elif (idx == 0):
+            
+            fil_U[idx] = U[idx] - (1 / 1024) * sum(A[0, (m    ) : (m + 5)] * U[idx     : idx + 5])
+            
+        elif (idx == 1):
+            
+            fil_U[idx] = U[idx] - (1 / 1024) * sum(A[0, (m - 1) : (m + 5)] * U[idx - 1 : idx + 5])
+            
+        elif (idx == 2):
+            
+            fil_U[idx] = U[idx] - (1 / 1024) * sum(A[0, (m - 2) : (m + 5)] * U[idx - 2 : idx + 5])            
+            
+        elif (idx == 3):
+            
+            fil_U[idx] = U[idx] - (1 / 1024) * sum(A[0, (m - 3) : (m + 5)] * U[idx - 3 : idx + 5])            
+            
+        elif (idx == 4):
+            
+            fil_U[idx] = U[idx] - (1 / 1024) * sum(A[0, (m - 4) : (m + 5)] * U[idx - 4 : idx + 5])            
+            
+        elif (idx == (N_pts - 5)):
+            
+            fil_U[idx] = U[idx] - (1 / 1024) * sum(A[0, (m - 5) : (m + 4)] * U[idx - 5 : idx + 4])                        
+            
+        elif (idx == (N_pts - 4)):
+            
+            fil_U[idx] = U[idx] - (1 / 1024) * sum(A[0, (m - 5) : (m + 3)] * U[idx - 5 : idx + 3])            
+            
+        elif (idx == (N_pts - 3)):
+            
+            fil_U[idx] = U[idx] - (1 / 1024) * sum(A[0, (m - 5) : (m + 2)] * U[idx - 5 : idx + 2])                        
+            
+        elif (idx == (N_pts - 2)):
+            
+            fil_U[idx] = U[idx] - (1 / 1024) * sum(A[0, (m - 5) : (m + 1)] * U[idx - 5 : idx + 1])                                    
+            
+        elif (idx == (N_pts - 1)):
+            
+            fil_U[idx] = U[idx] - (1 / 1024) * sum(A[0, (m - 5) : (m    )] * U[idx - 5 : idx    ])            
+
+        else: 
+            
+            print('fin_diff_lib: CD10_filter: Error! Input variable not entering any of the if..else conditions.')
+
+    return fil_U
+
+
+
 def compute_RK4_time_step(compute_fluxes, Flow_vec_0, \
                                               dx, dy, \
                                              delta_t):

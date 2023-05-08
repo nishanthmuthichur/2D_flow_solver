@@ -1,5 +1,7 @@
 import numpy as np
 import h5py as h5
+
+import fin_diff_lib as fdl
 #***************************MACRO DEFINITIONS**********************************
 
 INIT_DUM_VAL = -100000
@@ -94,4 +96,28 @@ def write_data_to_hdf5_file(wkdir_write_data, op_gen_fname, \
     file_dp.create_dataset('/v_vel'    , data = Flow_vec.U_sol[V_VEL])
 
     file_dp.close()                                   
+
+def filter_sol(Flow_vec):
+    
+    N_var = len(Flow_vec.U_sol)
+    
+    (Nx, Ny) = Flow_vec.U_sol[0].shape
+    
+    for var_idx in range(0, N_var):
+        
+        sol_field = Flow_vec.U_sol[var_idx]
+        
+        #Filtering along y-direction
+        for x_idx in range(0, Nx):
+            
+            sol_field[x_idx, :] = fdl.compute_CD10_filter(sol_field[x_idx, :])    
+            
+        for y_idx in range(0, Ny):
+            
+            sol_field[:, y_idx] = fdl.compute_CD10_filter(sol_field[:, y_idx])
+            
+        Flow_vec.U_sol[var_idx] = sol_field    
+    
+    return Flow_vec
+
          
